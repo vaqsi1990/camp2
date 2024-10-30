@@ -92,6 +92,8 @@ export const propertySchema = z.object({
   amenities: z.string(),
 });
 
+export const updatePropertySchema = propertySchema.partial();
+
 export const createReviewSchema = z.object({
   propertyId: z.string(),
   rating: z.coerce.number().int().min(1).max(5),
