@@ -1,6 +1,6 @@
 'use server'
 
-import { profileSchema, validateWithZod, imageSchema, propertySchema, createReviewSchema } from "./schemas"
+import { profileSchema, validateWithZod, imageSchema, propertySchema, createReviewSchema, updatePropertySchema } from "./schemas"
 import db from './db';
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
@@ -99,30 +99,25 @@ export const fetchProfileImage = async () => {
   return profile
  }
 
-export const updatePropertyAction = async (
+ export const updateProfileAction = async (
   prevState: any,
   formData: FormData
 ): Promise<{ message: string }> => {
   const user = await getAuthUser();
-  const propertyId = formData.get('id') as string;
 
   try {
     const rawData = Object.fromEntries(formData);
-    
-    const validatedFields = validateWithZod(updatePropertySchema, rawData);
-    
-    await db.property.update({
+    const validatedFields = validateWithZod(profileSchema, rawData);
+
+    await db.profile.update({
       where: {
-        id: propertyId,
-        profileId: user.id,
+        clerkId: user.id,
       },
-      data: {
-        ...validatedFields,
-      },
+      data: validatedFields,
     });
 
-    revalidatePath(`/rentals/${propertyId}/edit`);
-    return { message: 'Update Successful' };
+    revalidatePath('/profile');
+    return { message: 'Profile updated successfully' };
   } catch (error) {
     return renderError(error);
   }
@@ -580,7 +575,9 @@ export const updatePropertyAction = async (
 
   try {
     const rawData = Object.fromEntries(formData);
-    const validatedFields = validateWithZod(propertySchema, rawData);
+    
+    const validatedFields = validateWithZod(updatePropertySchema, rawData);
+    
     await db.property.update({
       where: {
         id: propertyId,
