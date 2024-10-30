@@ -99,25 +99,30 @@ export const fetchProfileImage = async () => {
   return profile
  }
 
- export const updateProfileAction = async (
+export const updatePropertyAction = async (
   prevState: any,
   formData: FormData
 ): Promise<{ message: string }> => {
   const user = await getAuthUser();
+  const propertyId = formData.get('id') as string;
 
   try {
     const rawData = Object.fromEntries(formData);
-    const validatedFields = validateWithZod(profileSchema, rawData);
-
-    await db.profile.update({
+    
+    const validatedFields = validateWithZod(updatePropertySchema, rawData);
+    
+    await db.property.update({
       where: {
-        clerkId: user.id,
+        id: propertyId,
+        profileId: user.id,
       },
-      data: validatedFields,
+      data: {
+        ...validatedFields,
+      },
     });
 
-    revalidatePath('/profile');
-    return { message: 'Profile updated successfully' };
+    revalidatePath(`/rentals/${propertyId}/edit`);
+    return { message: 'Update Successful' };
   } catch (error) {
     return renderError(error);
   }
