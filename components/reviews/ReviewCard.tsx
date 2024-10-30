@@ -14,7 +14,7 @@ type ReviewCardProps = {
 
 function ReviewCard({ reviewInfo, children }: ReviewCardProps) {
   return (
-    <Card className='relative'>
+    <Card className='relative border'>
       <CardHeader>
         <div className="flex items-center " >
           <img src={reviewInfo.image} alt={profile.name} className='w-12 h-12 rounded-full object-cover ' />
